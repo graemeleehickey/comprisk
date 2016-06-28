@@ -27,7 +27,7 @@ ggplot(aes(x = time, y = dose), data = epileptic) +
     x = "Time from randomization (years)", 
     y = "Calibrated dose"
   ) +
-  geom_smooth(aes(group = 1), colour = "red", se = FALSE, size = 1.5) +
+  #geom_smooth(aes(group = 1), colour = "red", se = FALSE, size = 1.5) +
   theme(text = element_text(size = 16))
 ggsave("figure1.pdf", width = 7, height = 7)
 ggsave("figure1.png", width = 7, height = 7)
