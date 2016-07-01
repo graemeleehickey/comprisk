@@ -489,7 +489,7 @@ joint.stats <- function(d, i) {
   id <- rep(1:N, m)
   epileptic.boot <- do.call("rbind", out)
   epileptic.boot$id <- id
- 
+  
   # Cluster-sampled time-to-event data
   survdat <- epileptic.boot[ , c(1, 4, 6, 7, 8)]
   nobs <- table(survdat$id)
@@ -510,24 +510,10 @@ joint.stats <- function(d, i) {
 }
 
 library(snow)
+library(parallel)
 
-ptm <- proc.time()
-set.seed(1)
-cl <- makeCluster(4, type = "SOCK")
-clusterCall(cl, fun = function() {
-  library("nlme")
-  library("stats")
-  library("survival")
-})
-clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat", 
-                    "em.alg.cr", "longst", "survsta", "survstb")) 
-joiner.boot <- boot(epileptic, joint.stats, R = 500, parallel = "snow", ncpus = 4, cl = cl)
-stopCluster(cl)
-proc.time() - ptm # CPU time
-
-do.call("rbind", lapply(1:16, function(i) boot.ci(joiner.boot, index = i, type = "perc")$percent[1 , 4:5]))
-
-# ## Using clusterApply()
+# ## Doesn't work!!!
+# ptm <- proc.time()
 # set.seed(1)
 # cl <- makeCluster(4, type = "SOCK")
 # clusterCall(cl, fun = function() {
@@ -537,10 +523,33 @@ do.call("rbind", lapply(1:16, function(i) boot.ci(joiner.boot, index = i, type =
 # })
 # clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat", 
 #                     "em.alg.cr", "longst", "survsta", "survstb")) 
-# system.time(clusterApply(cl, 1:10, function(i) joint.stats(epileptic, sample(1:605, replace=T))))
+# joiner.boot <- boot(epileptic, joint.stats, R = 500, parallel = "snow", ncpus = 4, cl = cl)
 # stopCluster(cl)
+# proc.time() - ptm # CPU time
+# 
+# do.call("rbind", lapply(1:16, function(i) boot.ci(joiner.boot, index = i, type = "perc")$percent[1 , 4:5]))
 
-# ## Mac OSX equivalent
-# system.time(mclapply(1:10, function(i) joint.stats(epileptic, sample(1:605, replace = TRUE))))
+## Using clusterApply()
+ptm <- proc.time()
+set.seed(1)
+cl <- makeCluster(4, type = "SOCK")
+#cl <- makeCluster(getOption("cl.cores", 4)) # Mac OSX
+clusterCall(cl, fun = function() {
+  library("nlme")
+  library("stats")
+  library("survival")
+})
+clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat",
+                    "em.alg.cr", "longst", "survsta", "survstb"))
+joiner.boot <- parSapply(cl, X = 1:500, FUN = function(n) joint.stats(epileptic, sample(1:605, replace=T)))
+stopCluster(cl)
+proc.time() - ptm # CPU time
+
+apply(joiner.boot, 1, function(x) quantile(x, c(0.025, 0.975)))
+
+# ## Mac OSX alternative
+# ptm <- proc.time()
+# joiner.boot <- mclapply(1:500, function(i) joint.stats(epileptic, sample(1:605, replace = TRUE)))
+# proc.time() - ptm # CPU time
 
 
