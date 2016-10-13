@@ -18,7 +18,7 @@ epileptic$status[epileptic$with.status.uae == 1] <- 1
 epileptic$status[epileptic$with.status.isc == 1] <- 2
 
 ##*********************************************************
-## Piecewise constant baseline hazard (5-knots; quantiles)
+## Weibull baseline hazard
 ##*********************************************************
 
 jlcmFit1 <- Jointlcmm(
@@ -248,7 +248,7 @@ i <- jlcmFit5$pprob$id[jlcmFit5$pprob$class == "2"]
 subset(epileptic, id %in% i)
 
 ##*********************************************************
-## Weibull baseline hazard
+## Piecewise constant baseline hazard (5-knots; quantiles)
 ##*********************************************************
 
 jlcmFit5pw <- Jointlcmm(
