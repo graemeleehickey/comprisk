@@ -87,17 +87,6 @@ W2D <- W2R
 W2sR <- splineDesign(qs, c(t(st)), ord = 1)
 W2sD <- W2sR
 
-# Design matrices for baseline hazard functions (old code)
-# qs <- with(survdat, quantile(with.time[event == 1], seq(0, 1, len = Q + 1), names = FALSE)[-c(1, Q + 1)])
-# qs <- c(0, qs, max(survdat$with.time) + 1)
-# ind <- findInterval(survdat$with.time, qs, rightmost.closed = TRUE)
-# D <- matrix(0, length(ind), Q)
-# D[cbind(seq_along(ind), ind)] <- 1
-# W2R <- D
-# W2D <- D
-# W2sR <- W2R[rep(1:N, each = 15), ]
-# W2sD <- W2D[rep(1:N, each = 15), ]
-
 # Column lengths of matrices
 ncW2R <- ncol(W2R)
 ncW2D <- ncol(W2D)

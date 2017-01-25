@@ -31,7 +31,7 @@ survdat.CR <- crLong(survdat, statusVar = "status",
 # in order to get the SEs and effects we are interested in
 
 jm.summary <- function(model.in, D = 0) {
-
+  
   out <- confint(model.in)
   
   vcv <- solve(model.in$Hessian)[6:11, 6:11] # take up to 11 just in case extra alphas
@@ -102,7 +102,7 @@ jointFit1 <- jointModel(lmeFit, coxFit,
                         #iter.qN = 500,
                         #numeriDeriv = "cd",
                         verbose = FALSE)
-                        
+
 summary(jointFit1)
 proc.time() - ptm # CPU time
 
@@ -270,12 +270,7 @@ epileptic2 <- do.call("rbind", epileptic2)
 epileptic2$status <- rep(0, nrow(epileptic2))
 epileptic2$status[epileptic2$with.status.uae == 1] <- 1
 epileptic2$status[epileptic2$with.status.isc == 1] <- 2
-
-epileptic2 <- survSplit(epileptic2, 
-                        cut = unique(epileptic2$with.time[epileptic2$status != 0]), 
-                        end = "time.stop", 
-                        start = "time", 
-                        event = "status")
+epileptic2$status <- as.factor(epileptic2$status)
 
 library(doBy)
 epileptic2 <- orderBy(~ id + time, data = epileptic2)
@@ -290,6 +285,7 @@ epileptic2$b1 <- rep.int(ranef(lmeFit)[, 2], ni)
 epileptic2$mi <- with(epileptic2, cbind(1, treat, time.stop, treat*time.stop)) %*% fixef(lmeFit) +
   with(epileptic2, b0 + b1*time.stop)
 epileptic2$slopei <- with(epileptic2, b1 + fixef(lmeFit)[3] + fixef(lmeFit)[4]*treat)
+epileptic2$inti <- with(epileptic2, b0 + fixef(lmeFit)[1])
 
 ## Time-to-event models
 
@@ -297,12 +293,12 @@ epileptic2$slopei <- with(epileptic2, b1 + fixef(lmeFit)[3] + fixef(lmeFit)[4]*t
 # Should give same results as per Williamson et al. (2008)
 
 coxFit.uae0 <- coxph(Surv(time, time.stop, status == 1) ~ treat,
-                    data = epileptic2)
+                     data = epileptic2)
 summary(coxFit.uae0)
 confint(coxFit.uae0)
 
 coxFit.isc0 <- coxph(Surv(time, time.stop, status == 2) ~ treat,
-                    data = epileptic2)
+                     data = epileptic2)
 summary(coxFit.isc0)
 confint(coxFit.isc0)
 
@@ -346,7 +342,7 @@ ggplot(aes(x = slopei, y = ..density.., fill = factor(treat)),
   ) +
   scale_fill_discrete(breaks = c("0", "1"), labels = c("CBZ", "LTG")) +
   theme(text = element_text(size = 16))
-  
+
 t.test(slopei ~ treat, data = slope.dat)  
 summaryBy(slopei ~ treat, data = slope.dat, FUN = c(mean, sd))
 
@@ -358,7 +354,7 @@ summaryBy(slopei ~ treat, data = slope.dat, FUN = c(mean, sd))
 # of non-independent random effects with tricky contrasts
 
 boot.fun <- function(d, i) {
-
+  
   # Generate cluster-sampled epileptic dataset
   N <- length(i)
   out <- lapply(i, function(u) subset(d, d$id == u))
@@ -381,7 +377,7 @@ boot.fun <- function(d, i) {
   lmeFit <- lme(dose ~ treat * time,
                 random = ~ time | id,
                 data = epileptic.boot)
-
+  
   # Time-to-event submodel
   coxFit <- coxph(Surv(with.time, status2) ~ treat*CR + strata(CR),
                   data = survdat.CR, 
