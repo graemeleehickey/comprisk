@@ -19,15 +19,16 @@ epileptic$status[epileptic$with.status.isc == 1] <- "ISC"
 
 ## Profile plots
 
-ggplot(aes(x = time, y = dose), data = epileptic) +
-  geom_line(aes(group = id), alpha = 0.4, size = 0.8) +
+ggplot(aes(x = time - with.time, y = dose), data = epileptic) +
+  geom_line(aes(group = id), colour = "grey", size = 0.8) +
   facet_grid(status ~ treat) +
   #theme_bw() +
   labs(
-    x = "Time from randomization (years)", 
+    x = "Time before treatment failure or censoring (years)", 
     y = "Calibrated dose"
   ) +
-  #geom_smooth(aes(group = 1), colour = "red", se = FALSE, size = 1.5) +
+  geom_smooth(aes(group = 1), colour = "red", se = FALSE, size = 1.5,
+              method = "loess", span = 0.7) +
   theme(text = element_text(size = 16))
 ggsave("figure1.pdf", width = 7, height = 7)
 ggsave("figure1.png", width = 7, height = 7)
