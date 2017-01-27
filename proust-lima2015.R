@@ -191,6 +191,13 @@ mat.upp %*% t(mat.upp)
 summary(jlcmFit6.gs) # First to pass C.I. test
 confint(jlcmFit6.gs)
 
+## Residual plots
+
+pdf("resid_plot_lcmm.pdf", width = 11, height = 11)
+#png("resid_plot_lcmm.png", width = 11, height = 11, units = "in", res = 300)
+plot(jlcmFit5)
+dev.off()
+
 ## Cumulative incidence plot
 pdf(file = "JLCM (time-to-event).pdf", width = 8, height = 8)
 par(mfrow = c(2, 1))

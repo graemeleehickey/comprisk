@@ -234,10 +234,24 @@ write.csv(jm.summary(jointFit2, D = 2), "Riz2012_models2.csv", row.names = FALSE
 ## Diagnostics
 ##*********************************************************
 
-martRes <- resid(jointFit4, type = "Martingale")
-mi.t <- fitted(jointFit2, process = "Longitudinal")
-plot(mi.t, martRes, ylim = c(-1, 1))
-lines(lowess(y = martRes, x= mi.t, iter = 0), col = 2)
+## Longitudinal
+
+pdf("resid_plot_JM.pdf", width = 9, height = 5)
+#png("resid_plot.png", width = 9, height = 5, units = "in", res = 300)
+par(mfrow = c(1, 2))
+  plot(jointFit1)
+dev.off()
+
+## Event time
+
+par(mfrow = c(1, 2))
+
+# This doesn't work with 'process = "Event' (p. 151 of JM book) -- suspect not Martingale resids
+martRes <- resid(jointFit1, type = "Martingale") 
+# With 'type = "EventTime"', the lengths of mi.t and martRes are different!
+mi.t <- fitted(jointFit1, process = "Longitudinal")
+plot(mi.t, martRes)
+lines(lowess(y = martRes, x = mi.t, iter = 0), col = 2)
 
 plot(epileptic$dose, martRes)
 lines(lowess(y = martRes, x = epileptic$dose, iter = 0), col = 2)
