@@ -239,7 +239,7 @@ write.csv(jm.summary(jointFit2, D = 2), "Riz2012_models2.csv", row.names = FALSE
 pdf("resid_plot_JM.pdf", width = 9, height = 5)
 #png("resid_plot.png", width = 9, height = 5, units = "in", res = 300)
 par(mfrow = c(1, 2))
-  plot(jointFit1)
+plot(jointFit1)
 dev.off()
 
 ## Event time
@@ -296,8 +296,8 @@ lmeFit <- lme(dose ~ treat * time,
 ni <- as.numeric(table(epileptic2$id))
 epileptic2$b0 <- rep.int(ranef(lmeFit)[, 1], ni)
 epileptic2$b1 <- rep.int(ranef(lmeFit)[, 2], ni)
-epileptic2$mi <- with(epileptic2, cbind(1, treat, time.stop, treat*time.stop)) %*% fixef(lmeFit) +
-  with(epileptic2, b0 + b1*time.stop)
+epileptic2$mi <- with(epileptic2, cbind(1, treat, time, treat*time)) %*% fixef(lmeFit) +
+  with(epileptic2, b0 + b1*time)
 epileptic2$slopei <- with(epileptic2, b1 + fixef(lmeFit)[3] + fixef(lmeFit)[4]*treat)
 epileptic2$inti <- with(epileptic2, b0 + fixef(lmeFit)[1])
 
@@ -345,10 +345,10 @@ library(ggplot2)
 
 # Compare slopes
 
-slope.dat <- epileptic2[!duplicated(epileptic2$id), c("slopei", "treat", "b1")]
+slope.dat <- epileptic2[!duplicated(epileptic2$id), c("slopei", "treat", "b1", "mi")]
 ggplot(aes(x = slopei, y = ..density.., fill = factor(treat)), 
        data = slope.dat) +
-  geom_histogram(alpha = 0.7) +
+  geom_density(alpha = 0.7) +
   labs(
     x = TeX("$\\frac{d\\mu_i(t)}{dt} = \\hat{\\beta}_1^{(1)} + \\hat{b}_{i1} + \\hat{\\beta}_3^{(1)}X_i$"),
     y = "density",
