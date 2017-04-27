@@ -6,15 +6,15 @@
 # ONLY CONSIDER 2 RISKS INITIALLY
 
 # longst <- function(longdat) {
-#   
+#
 #   list(
-#     b1vec = data.frame(fixef(long.start)), 
-#     sigma.z = data.frame(noise), 
-#     sigma.u = sig, 
-#     corr = data.frame(corr), 
+#     b1vec = data.frame(fixef(long.start)),
+#     sigma.z = data.frame(noise),
+#     sigma.u = sig,
+#     corr = data.frame(corr),
 #     log.like = data.frame(l1)
 #   )
-# 
+#
 # }
 
 longst <- function(longdat) {
@@ -23,21 +23,21 @@ longst <- function(longdat) {
   long.start <- lme(dose ~ time + treat + interaction,
                     data = longdat,
                     random = ~ time | id)
-  
+
   #summary(long.start)
   noise <- long.start$sigma^2
   sig <- as.matrix(getVarCov(long.start))
   corr <- as.numeric(VarCorr(long.start)[2, 3])
   l1 <- as.numeric(logLik(long.start))
-  
+
   list(
-    b1vec = data.frame(fixef(long.start)), 
-    sigma.z = data.frame(noise), 
-    sigma.u = sig, 
-    corr = data.frame(corr), 
+    b1vec = data.frame(fixef(long.start)),
+    sigma.z = data.frame(noise),
+    sigma.u = sig,
+    corr = data.frame(corr),
     log.like = data.frame(l1)
   )
-  
+
 }
 
 # NOW WANT TWO OF THESE, ONE FOR EACH RISK, GET 2 HAZARDS AND 2 ID
@@ -72,12 +72,12 @@ survsta <- function(survdat) {
   id.4 = c(id.2, id.3)
   id.5 = c(rep(0, match(1, id.1) - 1), id.4)
   l2 = surv.start$loglik
-  
+
   list(
-    b2vec.a = data.frame(c(coef(surv.start), 0)), 
-    a.0a = data.frame(haz), 
-    iden.a = data.frame(id.5), 
-    surv.dista = data.frame(s.dist), 
+    b2vec.a = data.frame(c(coef(surv.start), 0)),
+    a.0a = data.frame(haz),
+    iden.a = data.frame(id.5),
+    surv.dista = data.frame(s.dist),
     log.likea = data.frame(l2)
   )
 
@@ -111,19 +111,19 @@ survstb <- function(survdat) {
   id.4 = c(id.2, id.3)
   id.5 = c(rep(0, match(1, id.1) - 1), id.4)
   l2 = surv.start$loglik
-  
+
   list(
-    b2vec.b = data.frame(c(coef(surv.start), 0)), 
-    a.0b = data.frame(haz), 
-    iden.b = data.frame(id.5), 
-    surv.distb = data.frame(s.dist), 
+    b2vec.b = data.frame(c(coef(surv.start), 0)),
+    a.0b = data.frame(haz),
+    iden.b = data.frame(id.5),
+    surv.distb = data.frame(s.dist),
     log.likeb = data.frame(l2)
   )
 
 }
 
 em.alg.cr <- function(longdat, survdat, paraests) {
-  
+
   Y = longdat[ , 2]
   lda.time = longdat[ , 3]
   X1 = as.matrix(longdat[ , 4:dim(longdat)[2]])
@@ -146,7 +146,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
   sig[2, 1] = sig[1, 2]
   rho = paraests$corr[ , 1]
   varz = paraests$sigma.z[ , 1]
-  
+
   # NOW NEED SURVIVAL INITIAL HAZARDS, DISTINCT FAILURE VECTORS
   haz.a = paraests$a.0a[ , 1]
   s.dista = paraests$surv.dista[ , 1]
@@ -165,7 +165,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
   b2.b = paraests$b2vec.b[ , 1]
   ab = vector("numeric", gpt)
   w = vector("numeric", gpt)
-  
+
   # ENTER ABSCISSAE & WEIGHTS
   ab[1] = 1.22474487
   ab[2] = 0.0
@@ -195,7 +195,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
   W3 = matrix(0, maxn, 2)
   cvar = matrix(0, ran, ran)
   cvarch = matrix(0, ran, ran)
-  
+
   # LOOP PART BEGINS HERE...
   major.it = 25
   minor.it = 10
@@ -226,7 +226,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
         count = count + n.obs[i]
         W3 = solve(W11, t(W21))
         cvar = W22-W21 %*% W3
-        
+
         # TRANSFORM TO INDEPENDENT VARIABLES, WHICH WE'LL CALL GAMMA
         cvar = cvar * 2
         cvarch = chol(cvar)
@@ -239,7 +239,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
         fvec = exp(cen.a[i] * b2.a[p2 + lat] * (newumat[1, ] + newumat[2, ] * surv.time[i]) + (cen.b[i] * b2.b[p2 + lat] * (newumat[1, ] + newumat[2, ] * surv.time[i])))
         ssvec.a = 1
         #}
-        
+
         if(id.a[i] > 0) {
           ssvec.a = exp(b2.a[p2 + lat] * (newumat[1, ] + newumat[2, ] %*% t(s.dista[1:id.a[i]]))) %*% haz.a[1:id.a[i]]
         }
@@ -262,17 +262,17 @@ em.alg.cr <- function(longdat, survdat, paraests) {
         EU0U1expU.a[i, 1:id.a[i]] = t(fvec) %*% (newumat[1, ] * newumat[2, ] * const.a) / den
         EU1U1expU.a[i, 1:id.a[i]] = t(fvec) %*% (newumat[2, ]^2 * const.a) / den
         const.b = exp(b2.b[p2 + lat] * (newumat[1, ] + newumat[2, ] %*% t(s.distb[1:id.b[i]])))
-        
+
         if(id.b[i] == 0) {const.b = const.b^0}
         EexpU.b[i, 1:id.b[i]] = t(fvec) %*% const.b / den
         EU0expU.b[i, 1:id.b[i]] = t(fvec) %*% (newumat[1, ] * const.b) / den
         EU1expU.b[i, 1:id.b[i]] = t(fvec) %*% (newumat[2, ] * const.b) / den
         EU0U0expU.b[i, 1:id.b[i]] = t(fvec) %*% (newumat[1, ]^2 * const.b) / den
-        
+
         EU0U1expU.b[i, 1:id.b[i]] = t(fvec) %*% (newumat[1, ] * newumat[2, ] * const.b) / den
         EU1U1expU.b[i, 1:id.b[i]] = t(fvec) %*% (newumat[2, ]^2 * const.b) / den
       }
-      
+
       # NOW M-STEP...
       paracopy.em <- data.frame(c(b1, b2.a, b2.b, varz, sig, rho))
       # UPDATE FOR BASELINE HAZARDS
@@ -295,7 +295,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
       sum3 = sum(exp(b2x.b[match(ndist.b, id.b):n]) * (EexpU.b[match(ndist.b, id.b):n, i]))
       nfail = sum(cen.b[match(ndist.b, id.b):n])
       haz.b[ndist.b] = nfail / sum3
-      
+
       # NEED SOME MATRICES SET-UP FOR ESTIMATING BETA_1 & LATER BETA_2
       EUmat = matrix(0, N, 2)
       EUUmat = matrix(0, N, 3)
@@ -310,7 +310,7 @@ em.alg.cr <- function(longdat, survdat, paraests) {
       summat.b = matrix(0, n, 1)
       summat2.b = matrix(0, n, 2)
       summat3.b = matrix(0, n, 3)
-      
+
       for (i in 1:n) {
         if (id.a[i]>0) {
           summat.a[i, 1] = sum(EexpU.a[i, 1:id.a[i]] * haz.a[1:id.a[i]])
@@ -327,29 +327,29 @@ em.alg.cr <- function(longdat, survdat, paraests) {
           summat3.b[i, 2] = sum(EU1U1expU.b[i, 1:id.b[i]] * (s.distb[1:id.b[i]]^2) * haz.b[1:id.b[i]])
           summat3.b[i, 3] = sum(EU0U1expU.b[i, 1:id.b[i]] * s.distb[1:id.b[i]] * haz.b[1:id.b[i]])}
       }
-      
+
       # UPDATE BETA_1 PARAMETER VECTOR
       tEUmat = EUmat[ , 2] * lda.time
       sum = EUmat[ , 1] + tEUmat
       Ystar = Y-sum
-      XTX = t(X1) %*% X1 
+      XTX = t(X1) %*% X1
       XTY = t(X1) %*% Ystar
       b1 = solve(XTX, XTY)
-      
+
       # GET UPDATED NOISE TERM
       bx = X1 %*% b1
       r = Y-bx
       sum2 = r^2-2 * r * (EUmat[ , 1] + tEUmat) + EUUmat[ , 1] + (EUUmat[ , 2] * (lda.time^2))
       sum2 = sum2 + 2 * EUUmat[ , 3] * lda.time
       varz = sum(sum2) / N
-      
+
       # RANDOM EFFECTS COVARIANCE MATRIX
       sig[1, 1] = sum(EUU[ , 1]) / n
       sig[2, 2] = sum(EUU[ , 2]) / n
       sig[1, 2] = sum(EUU[ , 3]) / n
       sig[2, 1] = sig[1, 2]
       rho = sig[1, 2] / sqrt(sig[1, 1] * sig[2, 2])
-      
+
       # CALCULATE DERIVATIVES REQUIRED FOR BETA_2 NEWTON-RAPHSON
       fd.a = vector("numeric", p2 + lat)
       sd.a = matrix(0, p2 + lat, p2 + lat)
@@ -377,25 +377,25 @@ em.alg.cr <- function(longdat, survdat, paraests) {
             sd.b[i, j] = (-sum(X2[ , i] * X2[ , j] * eb2x.b * summat.b[ , 1]))}}}
       sd.a[p2 + lat, p2 + lat] = (-sum(eb2x.a * (summat3.a[ , 1] + 2 * summat3.a[ , 3] + summat3.a[ , 2])))
       sd.b[p2 + lat, p2 + lat] = (-sum(eb2x.b * (summat3.b[ , 1] + 2 * summat3.b[ , 3] + summat3.b[ , 2])))
-      
+
       # PERFORM NEWTON-RAPHSON STEP
       b2.a = b2.a-solve(sd.a, fd.a)
       b2.b = b2.b-solve(sd.b, fd.b)
     }
-    
+
     para.em <- data.frame(c(b1, b2.a, b2.b, varz, sig, rho))
     check = sum(abs(paracopy.em-para.em) > 0.001)
     if(check == 0) {break}
-    
+
   }
-  
+
   list(
-    b1vec = data.frame(b1), 
-    b2vec.a = data.frame(b2.a), 
-    b2vec.b = data.frame(b2.b), 
-    sigma.z = data.frame(varz), 
-    sigma.u = data.frame(sig), 
-    corr = data.frame(rho), 
+    b1vec = data.frame(b1),
+    b2vec.a = data.frame(b2.a),
+    b2vec.b = data.frame(b2.b),
+    sigma.z = data.frame(varz),
+    sigma.u = data.frame(sig),
+    corr = data.frame(rho),
     conv = data.frame(c(iter, check))
   )
 
@@ -426,7 +426,7 @@ fitWT.cr <- function(longdat, survdat) {
   survests.b = survstb(survdat)
   paraests = c(ldaests, survests.a, survests.b)
   em.alg.cr(longdat, survdat, paraests)
-} 
+}
 
 ##*********************************************************
 ## Data
@@ -489,7 +489,7 @@ joint.stats <- function(d, i) {
   id <- rep(1:N, m)
   epileptic.boot <- do.call("rbind", out)
   epileptic.boot$id <- id
-  
+
   # Cluster-sampled time-to-event data
   survdat <- epileptic.boot[ , c(1, 4, 6, 7, 8)]
   nobs <- table(survdat$id)
@@ -503,7 +503,7 @@ joint.stats <- function(d, i) {
   longdat$time.fix <- longdat$time
   longdat$intercept <- rep(1, nrow(longdat))
   longdat <- longdat[ , c(1:3, 7, 6, 4, 5)]
-  
+
    fit <- fitWT.cr(longdat, survdat)
    return(unlist(fit))
 
@@ -521,12 +521,12 @@ library(parallel)
 #   library("stats")
 #   library("survival")
 # })
-# clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat", 
-#                     "em.alg.cr", "longst", "survsta", "survstb")) 
+# clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat",
+#                     "em.alg.cr", "longst", "survsta", "survstb"))
 # joiner.boot <- boot(epileptic, joint.stats, R = 500, parallel = "snow", ncpus = 4, cl = cl)
 # stopCluster(cl)
 # proc.time() - ptm # CPU time
-# 
+#
 # do.call("rbind", lapply(1:16, function(i) boot.ci(joiner.boot, index = i, type = "perc")$percent[1 , 4:5]))
 
 ## Using clusterApply()
