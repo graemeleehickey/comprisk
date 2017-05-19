@@ -6,10 +6,10 @@ This repository contains the code for each joint model referenced and implemente
 
 Each model script is labelled by the first author of the original study. The example study data is available by running
 
-    library('joineR')
+library('joineR') # version 1.1.0 and earlier
     data(epileptic)
 
-and is also available as a file (`epileptic.txt`) in this repository.
+and is also available as a file (`epileptic.txt`) in this repository. **Note** that if using `joineR` version 1.2.0 or above, the `epileptic` data has a slightly different column ordering, which the code in this repository relies on. To avoid any issues, please load the data from the `epileptic.txt` file.
 
 ## Implementation
 
