@@ -433,7 +433,7 @@ fitWT.cr <- function(longdat, survdat) {
 ##*********************************************************
 
 library(joineR)
-data(epileptic)
+epileptic <- read.table("epileptic.txt", header = TRUE)
 
 head(epileptic)
 summary(epileptic)

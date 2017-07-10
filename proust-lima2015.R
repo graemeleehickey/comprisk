@@ -6,7 +6,7 @@ library(joineR)
 library(nlme)
 library(lcmm)
 
-data(epileptic)
+epileptic <- read.table("epileptic.txt", header = TRUE)
 head(epileptic)
 
 epileptic$time <- epileptic$time / 365.25
