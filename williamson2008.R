@@ -2,6 +2,16 @@
 ## Estimation functions
 ##*********************************************************
 
+#***************************************************************
+# UPDATE:
+# 
+# This is the original code used in Williamson et al. (2008).
+# It has since we updated and included in the joineR R package.
+# It is recommended that the joineR package is used for future
+# application.
+#
+#***************************************************************
+
 # FIRST PROGRAM TO FIT EXTENDED W&T TO COMPETING RISK SCENARIO
 # ONLY CONSIDER 2 RISKS INITIALLY
 
@@ -511,23 +521,6 @@ joint.stats <- function(d, i) {
 
 library(snow)
 library(parallel)
-
-# ## Doesn't work!!!
-# ptm <- proc.time()
-# set.seed(1)
-# cl <- makeCluster(4, type = "SOCK")
-# clusterCall(cl, fun = function() {
-#   library("nlme")
-#   library("stats")
-#   library("survival")
-# })
-# clusterExport(cl, c("epileptic", "joint.stats", "fitWT.cr", "sortcr.dat",
-#                     "em.alg.cr", "longst", "survsta", "survstb"))
-# joiner.boot <- boot(epileptic, joint.stats, R = 500, parallel = "snow", ncpus = 4, cl = cl)
-# stopCluster(cl)
-# proc.time() - ptm # CPU time
-#
-# do.call("rbind", lapply(1:16, function(i) boot.ci(joiner.boot, index = i, type = "perc")$percent[1 , 4:5]))
 
 ## Using clusterApply()
 ptm <- proc.time()

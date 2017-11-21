@@ -57,8 +57,8 @@ lmeFit <- lme(dose ~ treat * time,
 summary(lmeFit)
 getVarCov(lmeFit)
 
-fixef(lmeFit) - qnorm(0.975)*sqrt(diag(lmeFit$varFix))
-fixef(lmeFit) + qnorm(0.975)*sqrt(diag(lmeFit$varFix))
+fixef(lmeFit) - qnorm(0.975) * sqrt(diag(lmeFit$varFix))
+fixef(lmeFit) + qnorm(0.975) * sqrt(diag(lmeFit$varFix))
 
 ## Time-to-event submodel
 

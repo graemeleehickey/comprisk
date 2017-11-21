@@ -46,8 +46,12 @@ jm.summary <- function(model.in, D = 0) {
   out[6, 2] <- sum(model.in$coefficients$gammas)
   out[6, 1] <- out[6, 2] - qnorm(0.975)*SE.beta
   out[6, 3] <- out[6, 2] + qnorm(0.975)*SE.beta
-  if (D == 0 | D == 2) out[8, 2] <- sum(model.in$coefficients$alpha)
-  if (D == 1) out[8, 2] <- sum(model.in$coefficients$Dalpha)
+  if (D == 0 | D == 2) {
+    out[8, 2] <- sum(model.in$coefficients$alpha)
+  }
+  if (D == 1) {
+    out[8, 2] <- sum(model.in$coefficients$Dalpha)
+  }
   out[8, 1] <- out[8, 2] - qnorm(0.975)*SE.alpha
   out[8, 3] <- out[8, 2] + qnorm(0.975)*SE.alpha
   
@@ -241,18 +245,3 @@ pdf("resid_plot_JM.pdf", width = 9, height = 5)
 par(mfrow = c(1, 2))
 plot(jointFit1)
 dev.off()
-
-## Event time
-
-par(mfrow = c(1, 2))
-
-# This doesn't work with 'process = "Event' (p. 151 of JM book) -- suspect not Martingale resids
-martRes <- resid(jointFit1, type = "Martingale") 
-# With 'type = "EventTime"', the lengths of mi.t and martRes are different!
-mi.t <- fitted(jointFit1, process = "Longitudinal")
-plot(mi.t, martRes)
-lines(lowess(y = martRes, x = mi.t, iter = 0), col = 2)
-
-plot(epileptic$dose, martRes)
-lines(lowess(y = martRes, x = epileptic$dose, iter = 0), col = 2)
-
